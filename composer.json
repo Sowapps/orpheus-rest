@@ -1,0 +1,30 @@
+{
+  "name": "orpheus/orpheus-rest",
+  "description": "Orpheus Rest",
+  "keywords": [
+	"orpheus",
+	"rest",
+	"api"
+  ],
+  "autoload": {
+	"psr-4": {
+	  "Orpheus\\": "src"
+	}
+  },
+  "require": {
+	"orpheus/orpheus-core": "1.*",
+	"orpheus/orpheus-entitydescriptor": "1.*",
+	"orpheus/orpheus-inputcontroller": "1.*",
+	"orpheus/orpheus-yaml": "1.*"
+  },
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+	{
+	  "name": "Florent HAZARD",
+	  "email": "contact@sowapps.com",
+	  "homepage": "http://sowapps.com",
+	  "role": "Developer"
+	}
+  ]
+}

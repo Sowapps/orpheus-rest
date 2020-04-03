@@ -1,0 +1,15 @@
+# Start with providers
+providers:
+    - "Orpheus\Rest\RestApiGenerator"
+
+# Declare customer api routes
+
+api_user_authenticate:
+    path: "/api/user/authenticate"
+    method: "POST"
+    controller: "Orpheus\Rest\Controller\UserLoginRestController"
+
+api_wadl:
+    path: "/api/wadl.xml"
+    method: "GET"
+    controller: "Orpheus\Rest\Controller\RestApiWadlController"

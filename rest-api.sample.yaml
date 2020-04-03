@@ -1,0 +1,71 @@
+# Api Configuration, here is the documentation
+#
+# Starting endpoint of api
+#endpoint: "/api/"
+#
+# List of entities to map
+#entities:
+#   user:
+#       path: "user" (or implicitly the key)
+#       # Entity class
+#       class: "User"
+#       # Field to compare logged user is owner
+#       owner_field: "id"
+#       # The id to get by
+#       #field: "id" (implicit id) # DO NOT USE FOR NOW
+#       # Details rights, allow single string or string array, with values "owner" or roles
+#       list: "administrator"
+#       create: ["visitor", "administrator"]
+#       read: ["owner", "administrator"]
+#       update: ["owner", "administrator"]
+#       delete: "administrator"
+#       # The children entities (e.g /user/999/subject)
+#       children:
+#           subject: (Explicit object)
+#               path: "subject" (or implicitly the key)
+#               filter:
+#                   user_id: (Explicit object)
+#                       parent_field: "id" (See #1)
+#                       child_field: "user_id" (or implicitly the key, see #1)
+#                       # Use relation to get children
+#                       via:
+#                           # Relation Entity class
+#                           class: "UserSubject"
+#                           parent_field: "id" (See #1)
+#                           child_field: "user_id" (See #1)
+#                   #user_id: "parent" (Implicit from parent with parent_field: id) # NOT IMPLEMENTED
+#           subject: "user_id" (Implicit one filter parent with parent_field: id)
+#
+# Aliases to entity endpoint, e.g /me => /user/999
+#aliases:
+#   me:
+#       path: "me" (or implicitly the key)
+#       entity: "user"
+#       source: "User::getLoggedUserID()"
+#
+# #1 About fields, the field should be an explicit field, method allowed due to sql queries
+
+endpoint: "/api"
+
+entities:
+    user:
+        class: "Demo\\User"
+        owner_field: "id"
+        list: "administrator"
+        create: ["visitor", "administrator"]
+        read: ["owner", "administrator"]
+        update: ["owner", "administrator"]
+        delete: "administrator"
+#        children:
+#            subject: "user_id"
+
+aliases:
+    me:
+        entity: "user"
+        source: "Demo\\User::getLoggedUserID()"
+
+outsiders:
+    api_user_authenticate:
+        path: "/user/authenticate"
+        method: "POST"
+
