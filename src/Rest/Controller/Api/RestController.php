@@ -5,8 +5,10 @@
 
 namespace Orpheus\Rest\Controller\Api;
 
+use Exception;
 use Orpheus\EntityDescriptor\User\AbstractUser;
 use Orpheus\EntityDescriptor\User\UserApiConnectible;
+use Orpheus\Exception\UserException;
 use Orpheus\InputController\HTTPController\HTTPController;
 use Orpheus\InputController\HTTPController\HTTPRequest;
 use Orpheus\InputController\HTTPController\JSONHTTPResponse;
@@ -49,5 +51,13 @@ abstract class RestController extends HTTPController {
 	
 	public function renderOutput($data) {
 		return new JSONHTTPResponse($data);
+	}
+	
+	public function processException(Exception $exception, $values = []) {
+		return JSONHTTPResponse::generateFromException($exception);
+	}
+	
+	public function processUserException(UserException $exception, $values = []) {
+		return JSONHTTPResponse::generateFromUserException($exception, $values);
 	}
 }

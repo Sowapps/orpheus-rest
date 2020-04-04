@@ -81,7 +81,7 @@ class XMLHTTPResponse extends HTTPResponse {
 		if( $code < 100 ) {
 			$code = HTTP_INTERNAL_SERVER_ERROR;
 		}
-		$other = new \stdClass();
+		$other = new stdClass();
 		$other->code = $exception->getCode();
 		$other->message = $exception->getMessage();
 		$other->file = $exception->getFile();
