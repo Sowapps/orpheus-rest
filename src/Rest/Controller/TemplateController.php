@@ -25,7 +25,7 @@ class TemplateController extends RestController {
 	 * @throws ForbiddenException
 	 */
 	public function run($request) {
-		$templateKey = $request->getInputValue('key');
+		$templateKey = $request->getPathValue('key');
 		
 		$templateConfig = $this->getTemplateConfig();
 		if( $templateConfig[$templateKey] ) {
