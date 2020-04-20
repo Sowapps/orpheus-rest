@@ -26,27 +26,48 @@ abstract class RestController extends HTTPController {
 	/** @var AbstractUser|UserApiConnectible */
 	protected $user;
 	
+	/** @var int */
+	protected static $authenticatedUserId;
+	
 	/**
 	 * @param HTTPRequest $request
 	 * @return null
 	 */
 	public function preRun($request) {
 		
+		$_SESSION['USER_ID'] = null;
+		
 		// Authenticated user
 		$headers = $request->getHeaders();
+		$token = null;
 		if( !empty($headers[self::HEADER_ALT_AUTHORIZATION]) || !empty($headers[self::HEADER_AUTHORIZATION]) ) {
 			$authHeader = !empty($headers[self::HEADER_ALT_AUTHORIZATION]) ? $headers[self::HEADER_ALT_AUTHORIZATION] : $headers[self::HEADER_AUTHORIZATION];
 			[, $token] = explodeList(' ', $authHeader, 2);
+		} elseif( $request->hasParameter('aat') ) {
+			$token = $request->getParameter('aat');
+		}
+		if( $token ) {
 			/** @var UserApiConnectible $userClass */
 			$userClass = AbstractUser::getUserClass();
 			$this->user = $userClass::getByAccessToken($token);
 			// Compatibility with all user system
 			if( $this->user ) {
 				$this->user->login(true);
+				static::$authenticatedUserId = $this->user->id();
 			}
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Get current user access level
+	 * If anonymous, the access is -1
+	 *
+	 * @return int
+	 */
+	public function getUserAccess() {
+		return $this->user ? intval($this->user->accesslevel) : -1;
 	}
 	
 	public function renderOutput($data) {
@@ -59,5 +80,12 @@ abstract class RestController extends HTTPController {
 	
 	public function processUserException(UserException $exception, $values = []) {
 		return JSONHTTPResponse::generateFromUserException($exception, $values);
+	}
+	
+	/**
+	 * @return int
+	 */
+	public static function getAuthenticatedUserId() {
+		return self::$authenticatedUserId;
 	}
 }

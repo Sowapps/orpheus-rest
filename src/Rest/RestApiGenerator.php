@@ -16,17 +16,6 @@ use Orpheus\InputController\HTTPController\HTTPRoute;
  */
 class RestApiGenerator {
 	
-	const RIGHT_LIST = 'list';
-	const RIGHT_CREATE = 'create';
-	const RIGHT_READ = 'read';
-	const RIGHT_UPDATE = 'update';
-	const RIGHT_DELETE = 'delete';
-	
-	/**
-	 * @var array
-	 */
-	private static $rights = [self::RIGHT_LIST, self::RIGHT_CREATE, self::RIGHT_READ, self::RIGHT_UPDATE, self::RIGHT_DELETE];
-	
 	/**
 	 * @var RestRouteGenerator[]
 	 */
@@ -57,8 +46,12 @@ class RestApiGenerator {
 		$this->entityActions['create'] = new RestRouteGenerator(HTTPRoute::METHOD_POST, 'Orpheus\Rest\Controller\Api\RestCreateController');
 		$this->itemActions = [];
 		$this->itemActions['read'] = new RestRouteGenerator(HTTPRoute::METHOD_GET, 'Orpheus\Rest\Controller\Api\RestReadController');
-		$this->itemActions['update'] = new RestRouteGenerator(HTTPRoute::METHOD_PUT, 'Orpheus\Rest\Controller\Api\ApiInterestRateListController');
+		$this->itemActions['update'] = new RestRouteGenerator(HTTPRoute::METHOD_PUT, 'Orpheus\Rest\Controller\Api\RestUpdateController');
 		$this->itemActions['delete'] = new RestRouteGenerator(HTTPRoute::METHOD_DELETE, 'Orpheus\Rest\Controller\Api\RestDeleteController');
+	}
+	
+	public function getAllActions() {
+		return array_merge(array_keys($this->entityActions), array_keys($this->itemActions));
 	}
 	
 	/**
@@ -83,7 +76,10 @@ class RestApiGenerator {
 		// Loop on entities to extract base data
 		foreach( $api->aliases as $aliasKey => $aliasConfig ) {
 			$this->generateEntityRoutes($routes, $api, $this->routePrefix . $aliasKey . '_', $aliasConfig->path,
-				$api->entities[$aliasConfig->entity], $aliasConfig->source);
+				$api->entities[$aliasConfig->entity], (object) [
+					'key'    => $aliasKey,
+					'source' => $aliasConfig->source,
+				]);
 		}
 		
 		return ['http' => $routes];
@@ -110,17 +106,21 @@ class RestApiGenerator {
 					throw new Exception('Invalid class provided for entity ' . $entityKey);
 				}
 				if( !isset($entityConfig->owner_field) ) {
-					$entityConfig->owner_field = 'user_id';
+					$entityConfig->owner_field = 'create_user_id';
 				}
 				// Format rights fields
-				foreach( static::$rights as $key ) {
+				foreach( $this->getAllActions() as $key ) {
 					if( !isset($entityConfig->$key) ) {
-						// Initialize right to none
-						$entityConfig->$key = [];
-					} elseif( !is_array($entityConfig->$key) ) {
-						// Convert implicit string to array of string
-						$entityConfig->$key = [$entityConfig->$key];
-					}
+						// Not-provided config is initialized to empty
+						$entityConfig->$key = ['roles' => []];
+					} elseif( is_string($entityConfig->$key) ) {
+						// lone string is a role
+						$entityConfig->$key = ['roles' => [$entityConfig->$key]];
+					} elseif( is_array($entityConfig->$key) && isset($entityConfig->$key[0]) ) {
+						// List of roles
+						$entityConfig->$key = ['roles' => $entityConfig->$key];
+					} // Else well-formatted array
+					$entityConfig->$key = (object) $entityConfig->$key;
 				}
 				// Format Children
 				if( !isset($entityConfig->children) ) {
@@ -159,6 +159,9 @@ class RestApiGenerator {
 							}
 						}
 					}
+				}
+				if( !isset($entityConfig->path_item_id) ) {
+					$entityConfig->path_item_id = $entityConfig->children ? $entityKey . 'Id' : 'itemId';
 				}
 			}
 		} else {
@@ -226,29 +229,33 @@ class RestApiGenerator {
 	 * @param string $routePrefix
 	 * @param string $entityPath
 	 * @param object $entityConfig
-	 * @param string|null $aliasSource
+	 * @param string|null $alias
 	 */
-	public function generateEntityRoutes(array &$routes, $api, $routePrefix, $entityPath, $entityConfig, $aliasSource = null) {
-		$itemOnly = !!$aliasSource;
+	public function generateEntityRoutes(array &$routes, $api, $routePrefix, $entityPath, $entityConfig, $alias = null) {
+		$itemOnly = !!$alias;
 		
 		if( !$itemOnly ) {
 			$entityResPath = $api->endpoint . sprintf($this->getEntityPath(), $entityPath);
 			foreach( $this->getEntityActions() as $actionKey => $action ) {
-				$routes[$routePrefix . $actionKey] = $this->generateRoute($actionKey, $action, $entityResPath, $entityConfig, $aliasSource);
+				$routes[$routePrefix . $actionKey] = $this->generateRoute($actionKey, $action, $entityResPath, $entityConfig, $alias, null);
 			}
 		}
 		
 		$entityItemPath = $api->endpoint . sprintf($itemOnly ? $this->getEntityPath() : $this->getFullItemPath(), $entityPath);
 		
 		foreach( $this->getItemActions() as $actionKey => $action ) {
-			$routes[$routePrefix . $actionKey] = $this->generateRoute($actionKey, $action, $entityItemPath, $entityConfig, $aliasSource);
+			$routes[$routePrefix . $actionKey] = $this->generateRoute($actionKey, $action, $entityItemPath, $entityConfig, $alias, null);
 		}
 		
 		foreach( $entityConfig->children as $childKey => $childConfig ) {
-			$childEntityConfig = $api->entities[$childKey];
+			$childEntityConfig = (object) array_merge((array) $api->entities[$childKey], (array) $childConfig);
 			$childPath = $entityItemPath . sprintf($this->getEntityPath(), $childEntityConfig->path);
 			foreach( $this->getEntityActions() as $actionKey => $action ) {
-				$routes[$routePrefix . $childKey . '_' . $actionKey] = $this->generateRoute($actionKey, $action, $childPath, $childEntityConfig, $aliasSource);
+				$routes[$routePrefix . $childKey . '_' . $actionKey] = $this->generateRoute($actionKey, $action, $childPath, $childEntityConfig, null, [
+					'class'      => $entityConfig->class,
+					'pathItemId' => $entityConfig->path_item_id,
+					'alias'      => $alias,
+				]);
 			}
 		}
 	}
@@ -272,17 +279,24 @@ class RestApiGenerator {
 	 * @param RestRouteGenerator $action
 	 * @param string $path
 	 * @param object $entityConfig
-	 * @param string $aliasSource
+	 * @param string $alias
 	 * @return array
 	 */
-	public function generateRoute($actionKey, $action, $path, $entityConfig, $aliasSource) {
+	public function generateRoute($actionKey, $action, $path, $entityConfig, $alias, $parent) {
 		$route = $action->generate();
 		$route['path'] = $path;
 		$route['entity'] = $entityConfig->class;
-		$route['rights'] = $entityConfig->$actionKey;
+		$route['parent'] = $parent;
+		$route['rights'] = $entityConfig->$actionKey->roles;
 		$route['owner_field'] = $entityConfig->owner_field;
-		if( $aliasSource ) {
-			$route['source'] = $aliasSource;
+		if( isset($entityConfig->$actionKey->controller) ) {
+			$route['controller'] = $entityConfig->$actionKey->controller;
+		}
+		if( isset($entityConfig->update_on_duplicate) ) {
+			$route['update_on_duplicate'] = $entityConfig->update_on_duplicate;
+		}
+		if( $alias ) {
+			$route['alias'] = $alias;
 		}
 		return $route;
 	}

@@ -23,12 +23,12 @@ class RestUpdateController extends EntityRestController {
 	 * @return OutputResponse|null
 	 */
 	public function run($request) {
-		
+		$output = $request->getParameter('output', 'all');
 		$input = $request->getInput();
 		
 		$this->entityService->updateItem($this->item, $input);
 		
-		$data = $this->entityService->extractPublicArray($this->item);
+		$data = $this->entityService->extractPublicArray($this->item, $output);
 		
 		return new JSONHTTPResponse($data);
 	}

@@ -32,13 +32,13 @@ class UserLoginRestController extends RestController {
 		/** @var UserApiConnectible|AbstractUser $user */
 		$user = $userClass::getByEmail($userEmail);
 		if( !$user ) {
-			throw new ForbiddenException($userClass::text('Invalid authentication'));
+			throw new ForbiddenException($userClass::text('invalidAuthenticationUser'));
 		}
 		if( $user->password !== hashString($request->getInputValue('password')) ) {
-			throw new ForbiddenException($userClass::text('Invalid authentication'));
+			throw new ForbiddenException($userClass::text('invalidAuthenticationPassword'));
 		}
 		if( !$user->published ) {
-			throw new ForbiddenException($userClass::text('User disabled'));
+			throw new ForbiddenException($userClass::text('disabledUser'));
 		}
 		
 		return $this->renderOutput(['accesstoken' => $user->getAccessToken()]);

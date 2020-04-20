@@ -9,6 +9,8 @@ use Orpheus\EntityDescriptor\EntityService;
 use Orpheus\EntityDescriptor\PermanentEntity;
 use Orpheus\EntityDescriptor\User\AbstractUser;
 use Orpheus\Exception\ForbiddenException;
+use Orpheus\Exception\NotFoundException;
+use Orpheus\InputController\ControllerRoute;
 use Orpheus\InputController\HTTPController\HTTPRequest;
 use Orpheus\Publisher\Exception\FieldNotFoundException;
 
@@ -30,6 +32,11 @@ abstract class EntityRestController extends RestController {
 	protected $item;
 	
 	/**
+	 * @var PermanentEntity
+	 */
+	protected $parent;
+	
+	/**
 	 * @var AbstractUser
 	 */
 	protected $filterUser;
@@ -49,11 +56,47 @@ abstract class EntityRestController extends RestController {
 		parent::preRun($request);
 		
 		$route = $request->getRoute();
-		$options = $route->getOptions();
-		if( !empty($options['rights']) ) {
+		$routeOptions = (object) $route->getOptions();
+		
+		$this->checkRights($route, $routeOptions, $request);
+		
+		if( !empty($routeOptions->parent) ) {
+			$parentConfig = (object) $routeOptions->parent;
+			$parentId = $request->getPathValue($parentConfig->pathItemId);
+			if( !$parentId ) {
+				if( empty($parentConfig->alias) ) {
+					throw new NotFoundException(sprintf('Parent %s not found', $parentConfig->pathItemId));
+				}
+				$parentId = call_user_func(strtok($parentConfig->alias->source, '('));
+				if( !$parentId ) {
+					throw new NotFoundException(sprintf('Parent alias %s not found', $parentConfig->alias->key));
+				}
+			}
+			$parentService = new EntityService($parentConfig->class);
+			$this->parent = $parentService->loadItem($parentId);
+		}
+		
+		$this->entityService = new EntityService($routeOptions->entity);
+		
+		$itemId = $request->getPathValue($this->pathItemId);
+		if( !$itemId && !empty($routeOptions->alias) ) {
+			$itemId = call_user_func(strtok($routeOptions->alias->source, '('));
+		}
+		
+		if( $itemId ) {
+			$this->item = $this->entityService->loadItem($itemId);
+		}
+		
+		$this->checkOwner($routeOptions, $request);
+		
+		return null;
+	}
+	
+	public function checkRights(ControllerRoute $route, $options, $request) {
+		if( !empty($options->rights) ) {
 			$checkOwner = false;
 			$allowed = false;
-			foreach( $options['rights'] as $right ) {
+			foreach( $options->rights as $right ) {
 				if( $right === 'owner' ) {
 					$checkOwner = true;
 				} elseif( AbstractUser::loggedCanAccessToRoute($route->getName(), $right) ) {
@@ -62,9 +105,8 @@ abstract class EntityRestController extends RestController {
 					break;
 				}
 			}
-			if( !$allowed && $checkOwner ) {
-				// Not filtered by role
-				// So, we allow it to access having result filtered
+			if( $checkOwner && $this->user ) {
+				// Owner allowed to access this route only if results are filtered
 				$this->filterUser = $this->user;
 				$allowed = true;
 			}
@@ -72,22 +114,11 @@ abstract class EntityRestController extends RestController {
 				throw new ForbiddenException('Forbidden access to route');
 			}
 		}
-		
-		$this->entityService = new EntityService($options['entity']);
-		
-		$itemId = $request->getPathValue($this->pathItemId);
-		if( !$itemId && !empty($options['source']) ) {
-			$itemId = call_user_func(strtok($options['source'], '('));
-		}
-		
-		if( $itemId ) {
-			$this->item = $this->entityService->loadItem($itemId);
-		}
-		
-		if( $this->filterUser && $this->item->getValue($options['owner_field']) == $this->filterUser->id() ) {
+	}
+	
+	public function checkOwner($options, $request) {
+		if( $this->filterUser && $this->item->getValue($options->owner_field) !== $this->filterUser->id() ) {
 			throw new ForbiddenException('Forbidden access to route');
 		}
-		
-		return null;
 	}
 }
