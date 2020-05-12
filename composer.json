@@ -12,6 +12,7 @@
 	}
   },
   "require": {
+	"php": "7.4.*",
 	"orpheus/orpheus-core": "1.*",
 	"orpheus/orpheus-entitydescriptor": "1.*",
 	"orpheus/orpheus-inputcontroller": "1.*",

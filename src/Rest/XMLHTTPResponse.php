@@ -6,6 +6,7 @@ use Exception;
 use Orpheus\Exception\UserException;
 use Orpheus\Exception\UserReportsException;
 use Orpheus\InputController\HTTPController\HTTPResponse;
+use Throwable;
 
 /**
  * Class XMLHTTPResponse
@@ -76,7 +77,7 @@ class XMLHTTPResponse extends HTTPResponse {
 	 * @param string $action
 	 * @return XMLHTTPResponse
 	 */
-	public static function generateFromException(Exception $exception, $action = 'Handling the request') {
+	public static function generateFromException(Throwable $exception, $action = 'Handling the request') {
 		$code = $exception->getCode();
 		if( $code < 100 ) {
 			$code = HTTP_INTERNAL_SERVER_ERROR;

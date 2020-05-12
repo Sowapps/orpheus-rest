@@ -7,7 +7,6 @@ namespace Orpheus\Rest\Controller;
 
 use Orpheus\Config\YAML\YAML;
 use Orpheus\Exception\ForbiddenException;
-use Orpheus\InputController\HTTPController\JSONHTTPResponse;
 use Orpheus\InputController\InputRequest;
 use Orpheus\InputController\OutputResponse;
 use Orpheus\Rest\Controller\Api\RestController;
@@ -21,7 +20,7 @@ class TemplateController extends RestController {
 	
 	/**
 	 * @param InputRequest $request
-	 * @return JSONHTTPResponse|OutputResponse|null
+	 * @return OutputResponse
 	 * @throws ForbiddenException
 	 */
 	public function run($request) {
