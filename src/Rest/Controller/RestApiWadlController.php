@@ -37,7 +37,7 @@ class RestApiWadlController extends HTTPController {
 	const TAG_DOC = 'doc';
 	const TAG_REPRESENTATION = 'representation';
 	const MIMETYPE_JSON = 'application/json';
-	const ENDPOINT_URL = SITEROOT . 'api';
+	const ENDPOINT_URL = WEB_ROOT . 'api';
 	/**
 	 * @var object
 	 */
