@@ -10,6 +10,7 @@ use Orpheus\EntityDescriptor\User\UserApiConnectible;
 use Orpheus\Exception\UserException;
 use Orpheus\InputController\HTTPController\HTTPController;
 use Orpheus\InputController\HTTPController\HTTPRequest;
+use Orpheus\InputController\HTTPController\HTTPResponse;
 use Orpheus\InputController\HTTPController\JSONHTTPResponse;
 use Throwable;
 
@@ -74,11 +75,11 @@ abstract class RestController extends HTTPController {
 		return new JSONHTTPResponse($data);
 	}
 	
-	public function processException(Throwable $exception, $values = []) {
+	public function processException(Throwable $exception, $values = []): HTTPResponse {
 		return JSONHTTPResponse::generateFromException($exception);
 	}
 	
-	public function processUserException(UserException $exception, $values = []) {
+	public function processUserException(UserException $exception, $values = []): HTTPResponse {
 		return JSONHTTPResponse::generateFromUserException($exception, $values);
 	}
 	

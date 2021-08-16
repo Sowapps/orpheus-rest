@@ -21,7 +21,7 @@ class RestReadController extends EntityRestController {
 	 * @param InputRequest $request
 	 * @return JSONHTTPResponse
 	 */
-	public function run($request) {
+	public function run($request): HttpResponse {
 		$output = $request->getParameter('output', 'all');
 		
 		$data = $this->entityService->extractPublicArray($this->item, $output);

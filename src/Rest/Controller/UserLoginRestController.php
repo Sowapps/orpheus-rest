@@ -25,7 +25,7 @@ class UserLoginRestController extends RestController {
 	 * @return JSONHTTPResponse|OutputResponse|null
 	 * @throws ForbiddenException
 	 */
-	public function run($request) {
+	public function run($request): HttpResponse {
 		$userEmail = $request->getInputValue('email');
 		/** @var UserApiConnectible|AbstractUser $userClass */
 		$userClass = AbstractUser::getUserClass();

@@ -59,7 +59,7 @@ class RestApiWadlController extends HTTPController {
 	 * @param InputRequest $request
 	 * @return XMLHTTPResponse
 	 */
-	public function run($request) {
+	public function run($request): HttpResponse {
 		
 		$xml = new SimpleXMLElement('<application/>');
 		

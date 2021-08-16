@@ -21,7 +21,7 @@ class RestDeleteController extends EntityRestController {
 	 * @param InputRequest $request
 	 * @return OutputResponse|null
 	 */
-	public function run($request) {
+	public function run($request): HttpResponse {
 		
 		$this->entityService->deleteItem($this->item);
 		
