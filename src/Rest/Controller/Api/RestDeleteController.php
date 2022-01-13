@@ -5,6 +5,7 @@
 
 namespace Orpheus\Rest\Controller\Api;
 
+use Orpheus\InputController\HttpController\HttpResponse;
 use Orpheus\InputController\InputRequest;
 use Orpheus\InputController\OutputResponse;
 
@@ -25,6 +26,6 @@ class RestDeleteController extends EntityRestController {
 		
 		$this->entityService->deleteItem($this->item);
 		
-		return null;
+		return new HttpResponse();
 	}
 }
