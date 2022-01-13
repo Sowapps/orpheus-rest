@@ -14,7 +14,7 @@ class RestRouteGenerator {
 	
 	/**
 	 * @var string The method
-	 * @see constants in HTTPRoute
+	 * @see constants in HttpRoute
 	 */
 	private $method;
 	

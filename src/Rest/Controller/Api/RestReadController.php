@@ -5,7 +5,7 @@
 
 namespace Orpheus\Rest\Controller\Api;
 
-use Orpheus\InputController\HTTPController\JSONHTTPResponse;
+use Orpheus\InputController\HttpController\JSONHttpResponse;
 use Orpheus\InputController\InputRequest;
 
 /**
@@ -19,13 +19,13 @@ class RestReadController extends EntityRestController {
 	 * Run this controller
 	 *
 	 * @param InputRequest $request
-	 * @return JSONHTTPResponse
+	 * @return JSONHttpResponse
 	 */
 	public function run($request): HttpResponse {
 		$output = $request->getParameter('output', 'all');
 		
 		$data = $this->entityService->extractPublicArray($this->item, $output);
 		
-		return new JSONHTTPResponse($data);
+		return new JSONHttpResponse($data);
 	}
 }

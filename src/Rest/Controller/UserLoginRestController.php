@@ -8,7 +8,7 @@ namespace Orpheus\Rest\Controller;
 use Orpheus\EntityDescriptor\User\AbstractUser;
 use Orpheus\EntityDescriptor\User\UserApiConnectible;
 use Orpheus\Exception\ForbiddenException;
-use Orpheus\InputController\HTTPController\JSONHTTPResponse;
+use Orpheus\InputController\HttpController\JSONHttpResponse;
 use Orpheus\InputController\InputRequest;
 use Orpheus\InputController\OutputResponse;
 use Orpheus\Rest\Controller\Api\RestController;
@@ -22,7 +22,7 @@ class UserLoginRestController extends RestController {
 	
 	/**
 	 * @param InputRequest $request
-	 * @return JSONHTTPResponse|OutputResponse|null
+	 * @return JSONHttpResponse|OutputResponse|null
 	 * @throws ForbiddenException
 	 */
 	public function run($request): HttpResponse {

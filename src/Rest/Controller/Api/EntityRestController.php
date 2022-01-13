@@ -11,7 +11,7 @@ use Orpheus\EntityDescriptor\User\AbstractUser;
 use Orpheus\Exception\ForbiddenException;
 use Orpheus\Exception\NotFoundException;
 use Orpheus\InputController\ControllerRoute;
-use Orpheus\InputController\HTTPController\HTTPRequest;
+use Orpheus\InputController\HttpController\HttpRequest;
 use Orpheus\Publisher\Exception\FieldNotFoundException;
 
 /**
@@ -47,7 +47,7 @@ abstract class EntityRestController extends RestController {
 	protected $pathItemId = 'itemId';
 	
 	/**
-	 * @param HTTPRequest $request
+	 * @param HttpRequest $request
 	 * @return null
 	 * @throws ForbiddenException
 	 * @throws FieldNotFoundException

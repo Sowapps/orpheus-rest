@@ -6,7 +6,7 @@
 namespace Orpheus\Rest\Controller\Api;
 
 use Orpheus\EntityDescriptor\Exception\DuplicateException;
-use Orpheus\InputController\HTTPController\JSONHTTPResponse;
+use Orpheus\InputController\HttpController\JSONHttpResponse;
 use Orpheus\InputController\InputRequest;
 use Orpheus\InputController\OutputResponse;
 
@@ -41,6 +41,6 @@ class RestCreateController extends EntityRestController {
 		
 		$data = $this->entityService->extractPublicArray($item, $output);
 		
-		return new JSONHTTPResponse($data);
+		return new JSONHttpResponse($data);
 	}
 }

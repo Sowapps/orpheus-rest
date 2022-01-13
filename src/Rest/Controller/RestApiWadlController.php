@@ -5,12 +5,12 @@
 
 namespace Orpheus\Rest\Controller;
 
-use Orpheus\InputController\HTTPController\HTTPController;
-use Orpheus\InputController\HTTPController\HTTPRoute;
+use Orpheus\InputController\HttpController\HttpController;
+use Orpheus\InputController\HttpController\HttpRoute;
 use Orpheus\InputController\InputRequest;
 use Orpheus\Rest\RestApiGenerator;
 use Orpheus\Rest\RestRouteGenerator;
-use Orpheus\Rest\XMLHTTPResponse;
+use Orpheus\Rest\XMLHttpResponse;
 use SimpleXMLElement;
 
 /**
@@ -18,7 +18,7 @@ use SimpleXMLElement;
  *
  * @package Orpheus\Rest\Controller
  */
-class RestApiWadlController extends HTTPController {
+class RestApiWadlController extends HttpController {
 	
 	const ATTR_ID = 'id';
 	const ATTR_NAME = 'name';
@@ -57,7 +57,7 @@ class RestApiWadlController extends HTTPController {
 	 * Run this controller
 	 *
 	 * @param InputRequest $request
-	 * @return XMLHTTPResponse
+	 * @return XMLHttpResponse
 	 */
 	public function run($request): HttpResponse {
 		
@@ -90,7 +90,7 @@ class RestApiWadlController extends HTTPController {
 			$this->addResource($resourceList, $outsiderKey, $outsiderConfig->path, $outsiderConfig->method, $this->convertKeyToName($outsiderKey));
 		}
 		
-		return new XMLHTTPResponse($xml->asXML());
+		return new XMLHttpResponse($xml->asXML());
 	}
 	
 	protected function addTitle(SimpleXMLElement $xml, $title) {
@@ -144,7 +144,7 @@ class RestApiWadlController extends HTTPController {
 			$method->addAttribute(self::ATTR_ID, $this->concatSlug($itemKey, $actionKey));
 			$method->addAttribute(self::ATTR_NAME, $action->getMethod());
 			$this->addTitle($method, $actionName);
-			if( $action->getMethod() === HTTPRoute::METHOD_PUT ) {
+			if( $action->getMethod() === HttpRoute::METHOD_PUT ) {
 				// Only POST & PUT allow input
 				$this->addJsonRepresentation($method->addChild(self::TAG_REQUEST));
 			}
@@ -170,7 +170,7 @@ class RestApiWadlController extends HTTPController {
 			$method->addAttribute(self::ATTR_ID, $entityKey . '-' . $actionKey);
 			$method->addAttribute(self::ATTR_NAME, $action->getMethod());
 			$this->addTitle($method, $actionName);
-			if( $action->getMethod() === HTTPRoute::METHOD_POST ) {
+			if( $action->getMethod() === HttpRoute::METHOD_POST ) {
 				// Only POST & PUT allow input
 				$this->addJsonRepresentation($method->addChild(self::TAG_REQUEST));
 			}
@@ -202,7 +202,7 @@ class RestApiWadlController extends HTTPController {
 			$method->addAttribute(self::ATTR_ID, $key . '-' . $methodKey);
 			$method->addAttribute(self::ATTR_NAME, $methodKey);
 			$this->addTitle($method, $methodName);
-			if( in_array($method, [HTTPRoute::METHOD_POST, HTTPRoute::METHOD_PUT], true) ) {
+			if( in_array($method, [HttpRoute::METHOD_POST, HttpRoute::METHOD_PUT], true) ) {
 				// Only POST & PUT allow input
 				$this->addJsonRepresentation($method->addChild(self::TAG_REQUEST));
 			}

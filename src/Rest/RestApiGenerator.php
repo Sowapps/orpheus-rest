@@ -7,7 +7,7 @@ namespace Orpheus\Rest;
 
 use Exception;
 use Orpheus\Config\YAML\YAML;
-use Orpheus\InputController\HTTPController\HTTPRoute;
+use Orpheus\InputController\HttpController\HttpRoute;
 
 /**
  * Class RestApiGenerator
@@ -42,12 +42,12 @@ class RestApiGenerator {
 	public function __construct($entityPath = '/%s') {
 		$this->entityPath = $entityPath;
 		$this->entityActions = [];
-		$this->entityActions['list'] = new RestRouteGenerator(HTTPRoute::METHOD_GET, 'Orpheus\Rest\Controller\Api\RestListController');
-		$this->entityActions['create'] = new RestRouteGenerator(HTTPRoute::METHOD_POST, 'Orpheus\Rest\Controller\Api\RestCreateController');
+		$this->entityActions['list'] = new RestRouteGenerator(HttpRoute::METHOD_GET, 'Orpheus\Rest\Controller\Api\RestListController');
+		$this->entityActions['create'] = new RestRouteGenerator(HttpRoute::METHOD_POST, 'Orpheus\Rest\Controller\Api\RestCreateController');
 		$this->itemActions = [];
-		$this->itemActions['read'] = new RestRouteGenerator(HTTPRoute::METHOD_GET, 'Orpheus\Rest\Controller\Api\RestReadController');
-		$this->itemActions['update'] = new RestRouteGenerator(HTTPRoute::METHOD_PUT, 'Orpheus\Rest\Controller\Api\RestUpdateController');
-		$this->itemActions['delete'] = new RestRouteGenerator(HTTPRoute::METHOD_DELETE, 'Orpheus\Rest\Controller\Api\RestDeleteController');
+		$this->itemActions['read'] = new RestRouteGenerator(HttpRoute::METHOD_GET, 'Orpheus\Rest\Controller\Api\RestReadController');
+		$this->itemActions['update'] = new RestRouteGenerator(HttpRoute::METHOD_PUT, 'Orpheus\Rest\Controller\Api\RestUpdateController');
+		$this->itemActions['delete'] = new RestRouteGenerator(HttpRoute::METHOD_DELETE, 'Orpheus\Rest\Controller\Api\RestDeleteController');
 	}
 	
 	public function getAllActions() {
@@ -191,7 +191,7 @@ class RestApiGenerator {
 					throw new Exception('Invalid path provided for outsider ' . $outsiderKey);
 				}
 				if( !isset($outsiderConfig->method) ) {
-					$outsiderConfig->method = [HTTPRoute::METHOD_GET];
+					$outsiderConfig->method = [HttpRoute::METHOD_GET];
 					
 				} elseif( $outsiderConfig->method ) {
 					$outsiderConfig->method = explode('|', $outsiderConfig->method);

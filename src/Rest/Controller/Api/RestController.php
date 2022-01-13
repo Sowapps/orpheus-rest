@@ -8,10 +8,10 @@ namespace Orpheus\Rest\Controller\Api;
 use Orpheus\EntityDescriptor\User\AbstractUser;
 use Orpheus\EntityDescriptor\User\UserApiConnectible;
 use Orpheus\Exception\UserException;
-use Orpheus\InputController\HTTPController\HTTPController;
-use Orpheus\InputController\HTTPController\HTTPRequest;
-use Orpheus\InputController\HTTPController\HTTPResponse;
-use Orpheus\InputController\HTTPController\JSONHTTPResponse;
+use Orpheus\InputController\HttpController\HttpController;
+use Orpheus\InputController\HttpController\HttpRequest;
+use Orpheus\InputController\HttpController\HttpResponse;
+use Orpheus\InputController\HttpController\JSONHttpResponse;
 use Throwable;
 
 /**
@@ -19,7 +19,7 @@ use Throwable;
  *
  * @package Orpheus\Rest\Controller\Api
  */
-abstract class RestController extends HTTPController {
+abstract class RestController extends HttpController {
 	
 	const HEADER_AUTHORIZATION = 'Authorization';
 	const HEADER_ALT_AUTHORIZATION = 'X-Auth';
@@ -31,7 +31,7 @@ abstract class RestController extends HTTPController {
 	protected static $authenticatedUserId;
 	
 	/**
-	 * @param HTTPRequest $request
+	 * @param HttpRequest $request
 	 * @return null
 	 */
 	public function preRun($request) {
@@ -72,15 +72,15 @@ abstract class RestController extends HTTPController {
 	}
 	
 	public function renderOutput($data) {
-		return new JSONHTTPResponse($data);
+		return new JSONHttpResponse($data);
 	}
 	
-	public function processException(Throwable $exception, $values = []): HTTPResponse {
-		return JSONHTTPResponse::generateFromException($exception);
+	public function processException(Throwable $exception, $values = []): HttpResponse {
+		return JSONHttpResponse::generateFromException($exception);
 	}
 	
-	public function processUserException(UserException $exception, $values = []): HTTPResponse {
-		return JSONHTTPResponse::generateFromUserException($exception, $values);
+	public function processUserException(UserException $exception, $values = []): HttpResponse {
+		return JSONHttpResponse::generateFromUserException($exception, $values);
 	}
 	
 	/**
@@ -89,4 +89,5 @@ abstract class RestController extends HTTPController {
 	public static function getAuthenticatedUserId() {
 		return self::$authenticatedUserId;
 	}
+	
 }
