@@ -16,12 +16,12 @@ class RestRouteGenerator {
 	 * @var string The method
 	 * @see constants in HttpRoute
 	 */
-	private $method;
+	private string $method;
 	
 	/**
 	 * @var string The controller class
 	 */
-	private $controller;
+	private string $controller;
 	
 	/**
 	 * RestRouteGenerator constructor.
@@ -37,7 +37,7 @@ class RestRouteGenerator {
 	/**
 	 * @return array
 	 */
-	public function generate() {
+	public function generate(): array {
 		return [
 			'method'     => $this->method,
 			'controller' => $this->controller,
@@ -48,14 +48,14 @@ class RestRouteGenerator {
 	/**
 	 * @return string
 	 */
-	public function getMethod() {
+	public function getMethod(): string {
 		return $this->method;
 	}
 	
 	/**
 	 * @return string
 	 */
-	public function getController() {
+	public function getController(): string {
 		return $this->controller;
 	}
 	

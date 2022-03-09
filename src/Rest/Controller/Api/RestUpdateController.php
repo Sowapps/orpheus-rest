@@ -5,9 +5,8 @@
 
 namespace Orpheus\Rest\Controller\Api;
 
+use Orpheus\InputController\HttpController\HttpRequest;
 use Orpheus\InputController\HttpController\JSONHttpResponse;
-use Orpheus\InputController\InputRequest;
-use Orpheus\InputController\OutputResponse;
 
 /**
  * Class RestUpdateController
@@ -19,10 +18,10 @@ class RestUpdateController extends EntityRestController {
 	/**
 	 * Run this controller
 	 *
-	 * @param InputRequest $request
-	 * @return OutputResponse|null
+	 * @param HttpRequest $request
+	 * @return JSONHttpResponse
 	 */
-	public function run($request): HttpResponse {
+	public function run($request): JSONHttpResponse {
 		$output = $request->getParameter('output', 'all');
 		$input = $request->getInput();
 		
@@ -32,4 +31,5 @@ class RestUpdateController extends EntityRestController {
 		
 		return new JSONHttpResponse($data);
 	}
+	
 }

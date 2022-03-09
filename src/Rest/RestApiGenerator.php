@@ -19,27 +19,27 @@ class RestApiGenerator {
 	/**
 	 * @var RestRouteGenerator[]
 	 */
-	private $entityActions;
+	private array $entityActions;
 	
 	/**
 	 * @var RestRouteGenerator[]
 	 */
-	private $itemActions;
+	private array $itemActions;
 	
 	/**
 	 * @var string
 	 */
-	private $routePrefix = 'api_';
+	private string $routePrefix = 'api_';
 	
 	/**
 	 * @var string
 	 */
-	private $entityPath;
+	private string $entityPath;
 	
 	/**
 	 * RestApiGenerator constructor.
 	 */
-	public function __construct($entityPath = '/%s') {
+	public function __construct(string $entityPath = '/%s') {
 		$this->entityPath = $entityPath;
 		$this->entityActions = [];
 		$this->entityActions['list'] = new RestRouteGenerator(HttpRoute::METHOD_GET, 'Orpheus\Rest\Controller\Api\RestListController');
@@ -50,7 +50,7 @@ class RestApiGenerator {
 		$this->itemActions['delete'] = new RestRouteGenerator(HttpRoute::METHOD_DELETE, 'Orpheus\Rest\Controller\Api\RestDeleteController');
 	}
 	
-	public function getAllActions() {
+	public function getAllActions(): array {
 		return array_merge(array_keys($this->entityActions), array_keys($this->itemActions));
 	}
 	
@@ -59,7 +59,7 @@ class RestApiGenerator {
 	 * @return array
 	 * @throws Exception
 	 */
-	public function getRoutes($endpoint = null) {
+	public function getRoutes(?string $endpoint = null): array {
 		$api = $this->getApiConfig();
 		
 		if( $endpoint !== null ) {
@@ -89,7 +89,7 @@ class RestApiGenerator {
 	 * @return object
 	 * @throws Exception
 	 */
-	public function getApiConfig() {
+	public function getApiConfig(): object {
 		$config = (object) $this->getRawConfig();
 		// Check & Format well config
 		if( !$config->endpoint ) {
@@ -200,6 +200,7 @@ class RestApiGenerator {
 		} else {
 			$config->outsiders = [];
 		}
+		
 		return $config;
 	}
 	
@@ -207,7 +208,7 @@ class RestApiGenerator {
 	 * @return array
 	 * @throws Exception
 	 */
-	public function getRawConfig() {
+	public function getRawConfig(): array {
 		return YAML::buildFrom(null, 'rest-api', true)->asArray();
 	}
 	
@@ -215,11 +216,12 @@ class RestApiGenerator {
 	 * @param callable $callable
 	 * @return bool
 	 */
-	protected function isValidCallable($callable) {
+	protected function isValidCallable($callable): bool {
 		if( !$callable ) {
 			return false;
 		}
 		$callable = preg_replace('#([^\(+])\(.*#', '$1', $callable);
+		
 		return is_callable($callable);
 	}
 	
@@ -261,20 +263,6 @@ class RestApiGenerator {
 	}
 	
 	/**
-	 * @return string
-	 */
-	public function getEntityPath() {
-		return $this->entityPath;
-	}
-	
-	/**
-	 * @return RestRouteGenerator[]
-	 */
-	public function getEntityActions() {
-		return $this->entityActions;
-	}
-	
-	/**
 	 * @param string $actionKey
 	 * @param RestRouteGenerator $action
 	 * @param string $path
@@ -282,11 +270,12 @@ class RestApiGenerator {
 	 * @param string $alias
 	 * @return array
 	 */
-	public function generateRoute($actionKey, $action, $path, $entityConfig, $alias, $parent) {
+	public function generateRoute($actionKey, $action, $path, $entityConfig, $alias, $parent): array {
 		$route = $action->generate();
 		$route['path'] = $path;
 		$route['entity'] = $entityConfig->class;
 		$route['parent'] = $parent;
+		// See EntityRestController::checkRights()
 		$route['rights'] = $entityConfig->$actionKey->roles;
 		$route['owner_field'] = $entityConfig->owner_field;
 		if( isset($entityConfig->$actionKey->controller) ) {
@@ -298,27 +287,43 @@ class RestApiGenerator {
 		if( $alias ) {
 			$route['alias'] = $alias;
 		}
+		
 		return $route;
 	}
 	
 	/**
 	 * @return string
 	 */
-	public function getFullItemPath() {
+	public function getEntityPath(): string {
+		return $this->entityPath;
+	}
+	
+	/**
+	 * @return RestRouteGenerator[]
+	 */
+	public function getEntityActions(): array {
+		return $this->entityActions;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getFullItemPath(): string {
 		return $this->entityPath . $this->getItemPath();
 	}
 	
 	/**
 	 * @return string
 	 */
-	public function getItemPath() {
+	public function getItemPath(): string {
 		return '/{id:itemId}';
 	}
 	
 	/**
 	 * @return RestRouteGenerator[]
 	 */
-	public function getItemActions() {
+	public function getItemActions(): array {
 		return $this->itemActions;
 	}
+	
 }

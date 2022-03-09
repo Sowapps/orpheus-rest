@@ -6,9 +6,8 @@
 namespace Orpheus\Rest\Controller\Api;
 
 use Orpheus\EntityDescriptor\Exception\DuplicateException;
+use Orpheus\InputController\HttpController\HttpRequest;
 use Orpheus\InputController\HttpController\JSONHttpResponse;
-use Orpheus\InputController\InputRequest;
-use Orpheus\InputController\OutputResponse;
 
 /**
  * Class RestCreateController
@@ -20,10 +19,10 @@ class RestCreateController extends EntityRestController {
 	/**
 	 * Run this controller
 	 *
-	 * @param InputRequest $request
-	 * @return OutputResponse|null
+	 * @param HttpRequest $request
+	 * @return JSONHttpResponse
 	 */
-	public function run($request): HttpResponse {
+	public function run($request): JSONHttpResponse {
 		$output = $request->getParameter('output', 'all');
 		$input = $request->getInput();
 		$route = $request->getRoute();
@@ -43,4 +42,5 @@ class RestCreateController extends EntityRestController {
 		
 		return new JSONHttpResponse($data);
 	}
+	
 }

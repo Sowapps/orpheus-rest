@@ -7,10 +7,10 @@ namespace Orpheus\EntityDescriptor\User;
 
 interface UserApiConnectible {
 	
-	function getAccessToken();
+	function getAccessToken(): string;
 	
-	static function getByAccessToken($token);
+	static function getByAccessToken(string $token): AbstractUser;
 	
-	static function getByEmail($email);
+	static function getByEmail(string $email): AbstractUser;
 	
 }

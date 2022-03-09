@@ -5,9 +5,8 @@
 
 namespace Orpheus\Rest\Controller\Api;
 
+use Orpheus\InputController\HttpController\HttpRequest;
 use Orpheus\InputController\HttpController\HttpResponse;
-use Orpheus\InputController\InputRequest;
-use Orpheus\InputController\OutputResponse;
 
 /**
  * Class RestDeleteController
@@ -19,8 +18,8 @@ class RestDeleteController extends EntityRestController {
 	/**
 	 * Run this controller
 	 *
-	 * @param InputRequest $request
-	 * @return OutputResponse|null
+	 * @param HttpRequest $request
+	 * @return HttpResponse
 	 */
 	public function run($request): HttpResponse {
 		
@@ -28,4 +27,5 @@ class RestDeleteController extends EntityRestController {
 		
 		return new HttpResponse();
 	}
+	
 }

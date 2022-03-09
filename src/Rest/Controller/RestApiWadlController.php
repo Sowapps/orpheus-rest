@@ -6,8 +6,9 @@
 namespace Orpheus\Rest\Controller;
 
 use Orpheus\InputController\HttpController\HttpController;
+use Orpheus\InputController\HttpController\HttpRequest;
+use Orpheus\InputController\HttpController\HttpResponse;
 use Orpheus\InputController\HttpController\HttpRoute;
-use Orpheus\InputController\InputRequest;
 use Orpheus\Rest\RestApiGenerator;
 use Orpheus\Rest\RestRouteGenerator;
 use Orpheus\Rest\XMLHttpResponse;
@@ -38,16 +39,19 @@ class RestApiWadlController extends HttpController {
 	const TAG_REPRESENTATION = 'representation';
 	const MIMETYPE_JSON = 'application/json';
 	const ENDPOINT_URL = WEB_ROOT . 'api';
-	/**
-	 * @var object
-	 */
+	
+	/** @var object */
 	private $api;
+	
 	private $entityResPath;
+	
 	private $itemResPath;
+	
 	/**
 	 * @var RestRouteGenerator[]
 	 */
 	private $entityActions;
+	
 	/**
 	 * @var RestRouteGenerator[]
 	 */
@@ -56,15 +60,13 @@ class RestApiWadlController extends HttpController {
 	/**
 	 * Run this controller
 	 *
-	 * @param InputRequest $request
+	 * @param HttpRequest $request
 	 * @return XMLHttpResponse
 	 */
 	public function run($request): HttpResponse {
-		
 		$xml = new SimpleXMLElement('<application/>');
-		
 		$xml->addAttribute('xmlns', 'http://wadl.dev.java.net/2009/02');
-		$this->addTitle($xml, 'MakeYourChoice API');
+		$this->addTitle($xml, sprintf('%s API', t('app_name')));
 		$resourceList = $xml->addChild(self::TAG_RESOURCE_LIST);
 		
 		$resourceList->addAttribute('base', self::ENDPOINT_URL);
@@ -158,7 +160,7 @@ class RestApiWadlController extends HttpController {
 		
 	}
 	
-	protected function addEntityResource(SimpleXMLElement $xml, $entityKey, $entityPath, $entityName) {
+	protected function addEntityResource(SimpleXMLElement $xml, $entityKey, $entityPath, $entityName): ?SimpleXMLElement {
 		$resource = $xml->addChild(self::TAG_RESOURCE);
 		$resource->addAttribute(self::ATTR_ID, $entityKey);
 		$resource->addAttribute(self::ATTR_PATH, $entityPath);
@@ -185,11 +187,11 @@ class RestApiWadlController extends HttpController {
 		$element->addAttribute(self::ATTR_MEDIA_TYPE, self::MIMETYPE_JSON);
 	}
 	
-	protected function concatSlug($before, $after) {
+	protected function concatSlug($before, $after): string {
 		return $before . '-' . $after;
 	}
 	
-	protected function addResource(SimpleXMLElement $xml, $key, $path, $methods, $name) {
+	protected function addResource(SimpleXMLElement $xml, $key, $path, $methods, $name): ?SimpleXMLElement {
 		$resource = $xml->addChild(self::TAG_RESOURCE);
 		$resource->addAttribute(self::ATTR_ID, $key);
 		$resource->addAttribute(self::ATTR_PATH, $path);
@@ -211,7 +213,7 @@ class RestApiWadlController extends HttpController {
 		return $resource;
 	}
 	
-	protected function convertKeyToName($key) {
+	protected function convertKeyToName($key): string {
 		return ucwords(str_replace(['api_', '_'], ['', ' '], $key));
 	}
 	
@@ -220,4 +222,5 @@ class RestApiWadlController extends HttpController {
 		$element->addAttribute(self::ATTR_STATUS, $status);
 		$this->addJsonRepresentation($element);
 	}
+	
 }

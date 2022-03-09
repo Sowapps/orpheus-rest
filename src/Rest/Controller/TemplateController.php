@@ -7,8 +7,8 @@ namespace Orpheus\Rest\Controller;
 
 use Orpheus\Config\YAML\YAML;
 use Orpheus\Exception\ForbiddenException;
-use Orpheus\InputController\InputRequest;
-use Orpheus\InputController\OutputResponse;
+use Orpheus\InputController\HttpController\HttpRequest;
+use Orpheus\InputController\HttpController\HttpResponse;
 use Orpheus\Rest\Controller\Api\RestController;
 
 /**
@@ -19,8 +19,8 @@ use Orpheus\Rest\Controller\Api\RestController;
 class TemplateController extends RestController {
 	
 	/**
-	 * @param InputRequest $request
-	 * @return OutputResponse
+	 * @param HttpRequest $request
+	 * @return HttpResponse
 	 * @throws ForbiddenException
 	 */
 	public function run($request): HttpResponse {
@@ -29,7 +29,7 @@ class TemplateController extends RestController {
 		$templateConfig = $this->getTemplateConfig();
 		if( $templateConfig[$templateKey] ) {
 			$template = $templateConfig[$templateKey];
-			$requiredAccess = isset($template->access) ? $template->access : 0;
+			$requiredAccess = $template->access ?? 0;
 			if( $this->getUserAccess() < $requiredAccess ) {
 				throw new ForbiddenException();
 			}
@@ -40,6 +40,8 @@ class TemplateController extends RestController {
 	
 	public function getTemplateConfig() {
 		$config = YAML::build('front-templates', true);
+		
 		return $config->templates;
 	}
+	
 }

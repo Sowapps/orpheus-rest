@@ -24,18 +24,17 @@ abstract class RestController extends HttpController {
 	const HEADER_AUTHORIZATION = 'Authorization';
 	const HEADER_ALT_AUTHORIZATION = 'X-Auth';
 	
-	/** @var AbstractUser|UserApiConnectible */
-	protected $user;
+	/** @var int|null */
+	protected static ?int $authenticatedUserId = null;
 	
-	/** @var int */
-	protected static $authenticatedUserId;
+	/** @var AbstractUser|UserApiConnectible|null */
+	protected ?AbstractUser $user = null;
 	
 	/**
 	 * @param HttpRequest $request
 	 * @return null
 	 */
 	public function preRun($request) {
-		
 		$_SESSION['USER_ID'] = null;
 		
 		// Authenticated user
@@ -67,11 +66,11 @@ abstract class RestController extends HttpController {
 	 *
 	 * @return int
 	 */
-	public function getUserAccess() {
+	public function getUserAccess(): int {
 		return $this->user ? intval($this->user->accesslevel) : -1;
 	}
 	
-	public function renderOutput($data) {
+	public function renderOutput($data): JSONHttpResponse {
 		return new JSONHttpResponse($data);
 	}
 	
@@ -86,7 +85,7 @@ abstract class RestController extends HttpController {
 	/**
 	 * @return int
 	 */
-	public static function getAuthenticatedUserId() {
+	public static function getAuthenticatedUserId(): ?int {
 		return self::$authenticatedUserId;
 	}
 	
