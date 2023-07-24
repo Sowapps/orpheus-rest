@@ -8,15 +8,15 @@
 	],
 	"autoload": {
 		"psr-4": {
-			"Orpheus\\": "src"
+			"Orpheus\\": "src/"
 		}
 	},
 	"require": {
 		"php": ">=7.4",
-		"orpheus/orpheus-core": "1.*",
-		"orpheus/orpheus-entitydescriptor": "1.*",
-		"orpheus/orpheus-inputcontroller": "1.*",
-		"orpheus/orpheus-yaml": "1.*"
+		"orpheus/orpheus-core": "4.*",
+		"orpheus/orpheus-entitydescriptor": "4.*",
+		"orpheus/orpheus-inputcontroller": "4.*",
+		"orpheus/orpheus-yaml": "4.*"
 	},
 	"type": "library",
 	"license": "MIT",

@@ -6,7 +6,7 @@
 namespace Orpheus\Rest;
 
 use Exception;
-use Orpheus\Config\YAML\YAML;
+use Orpheus\Config\Yaml\Yaml;
 use Orpheus\InputController\HttpController\HttpRoute;
 
 /**
@@ -209,7 +209,7 @@ class RestApiGenerator {
 	 * @throws Exception
 	 */
 	public function getRawConfig(): array {
-		return YAML::buildFrom(null, 'rest-api', true)->asArray();
+		return Yaml::buildFrom(null, 'rest-api', true)->asArray();
 	}
 	
 	/**

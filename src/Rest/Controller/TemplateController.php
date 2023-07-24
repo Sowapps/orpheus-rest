@@ -5,7 +5,7 @@
 
 namespace Orpheus\Rest\Controller;
 
-use Orpheus\Config\YAML\YAML;
+use Orpheus\Config\Yaml\Yaml;
 use Orpheus\Exception\ForbiddenException;
 use Orpheus\InputController\HttpController\HttpRequest;
 use Orpheus\InputController\HttpController\HttpResponse;
@@ -39,7 +39,7 @@ class TemplateController extends RestController {
 	}
 	
 	public function getTemplateConfig() {
-		$config = YAML::build('front-templates', true);
+		$config = Yaml::build('front-templates', true);
 		
 		return $config->templates;
 	}

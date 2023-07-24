@@ -49,7 +49,7 @@ endpoint: "/api"
 
 entities:
     user:
-        class: "Demo\\User"
+        class: "App\\User"
         owner_field: "id"
         list: "administrator"
         create: ["visitor", "administrator"]
@@ -62,7 +62,7 @@ entities:
 aliases:
     me:
         entity: "user"
-        source: "Demo\\User::getLoggedUserID()"
+        source: "App\\User::getLoggedUserID()"
 
 outsiders:
     api_user_authenticate:
