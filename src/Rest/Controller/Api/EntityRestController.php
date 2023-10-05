@@ -6,8 +6,8 @@
 namespace Orpheus\Rest\Controller\Api;
 
 use Orpheus\Config\Config;
-use Orpheus\EntityDescriptor\EntityService;
-use Orpheus\EntityDescriptor\PermanentEntity;
+use Orpheus\EntityDescriptor\Entity\PermanentEntity;
+use Orpheus\EntityDescriptor\Service\EntityService;
 use Orpheus\EntityDescriptor\User\AbstractUser;
 use Orpheus\Exception\ForbiddenException;
 use Orpheus\Exception\NotFoundException;
@@ -17,43 +17,25 @@ use Orpheus\Publisher\Exception\FieldNotFoundException;
 
 /**
  * Class EntityRestController
- *
- * @package Orpheus\Rest\Controller\Api
  */
 abstract class EntityRestController extends RestController {
 	
-	/**
-	 * @var EntityService
-	 */
 	protected EntityService $entityService;
 	
-	/**
-	 * @var PermanentEntity|null
-	 */
 	protected ?PermanentEntity $item = null;
 	
-	/**
-	 * @var PermanentEntity|null
-	 */
 	protected ?PermanentEntity $parent = null;
 	
-	/**
-	 * @var AbstractUser|null
-	 */
 	protected ?AbstractUser $filterUser = null;
 	
-	/**
-	 * @var string
-	 */
 	protected string $pathItemId = 'itemId';
 	
 	/**
 	 * @param HttpRequest $request
-	 * @return null
 	 * @throws ForbiddenException
 	 * @throws FieldNotFoundException
 	 */
-	public function preRun($request) {
+	public function preRun($request): null {
 		parent::preRun($request);
 		
 		$route = $request->getRoute();
@@ -101,7 +83,7 @@ abstract class EntityRestController extends RestController {
 		return null;
 	}
 	
-	public function checkRights(ControllerRoute $route, object $options, HttpRequest $request) {
+	public function checkRights(ControllerRoute $route, object $options, HttpRequest $request): true|array {
 		$advancedRoles = [];
 		if( !empty($options->rights) ) {
 			$userRoles = Config::get('user_roles');
@@ -135,7 +117,7 @@ abstract class EntityRestController extends RestController {
 		return $advancedRoles;
 	}
 	
-	public function checkAdvancedRole(object $options, HttpRequest $request, string $role) {
+	public function checkAdvancedRole(object $options, HttpRequest $request, string $role): void {
 	}
 	
 }

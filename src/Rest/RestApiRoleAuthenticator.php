@@ -5,13 +5,11 @@
 
 namespace Orpheus\Rest;
 
-use Orpheus\EntityDescriptor\PermanentEntity;
+use Orpheus\EntityDescriptor\Entity\PermanentEntity;
 use Orpheus\EntityDescriptor\User\AbstractUser;
 
 /**
  * Class RestApiGenerator
- *
- * @package Orpheus\Rest
  */
 class RestApiRoleAuthenticator {
 	

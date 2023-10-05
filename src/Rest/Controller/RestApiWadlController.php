@@ -1,23 +1,23 @@
 <?php
 /**
- * Created by Florent HAZARD on 04/02/2018
+ * @author Florent HAZARD <f.hazard@sowapps.com>
+ * @noinspection PhpComposerExtensionStubsInspection
  */
 
 namespace Orpheus\Rest\Controller;
 
+use Exception;
 use Orpheus\InputController\HttpController\HttpController;
 use Orpheus\InputController\HttpController\HttpRequest;
 use Orpheus\InputController\HttpController\HttpResponse;
 use Orpheus\InputController\HttpController\HttpRoute;
 use Orpheus\Rest\RestApiGenerator;
 use Orpheus\Rest\RestRouteGenerator;
-use Orpheus\Rest\XMLHttpResponse;
+use Orpheus\Rest\XmlHttpResponse;
 use SimpleXMLElement;
 
 /**
  * Class RestApiWadlController
- *
- * @package Orpheus\Rest\Controller
  */
 class RestApiWadlController extends HttpController {
 	
@@ -40,28 +40,28 @@ class RestApiWadlController extends HttpController {
 	const MIMETYPE_JSON = 'application/json';
 	const ENDPOINT_URL = WEB_ROOT . 'api';
 	
-	/** @var object */
-	private $api;
+	private object $api;
 	
-	private $entityResPath;
+	private string $entityResPath;
 	
-	private $itemResPath;
-	
-	/**
-	 * @var RestRouteGenerator[]
-	 */
-	private $entityActions;
+	private string $itemResPath;
 	
 	/**
 	 * @var RestRouteGenerator[]
 	 */
-	private $itemActions;
+	private array $entityActions;
+	
+	/**
+	 * @var RestRouteGenerator[]
+	 */
+	private array $itemActions;
 	
 	/**
 	 * Run this controller
 	 *
 	 * @param HttpRequest $request
-	 * @return XMLHttpResponse
+	 * @return XmlHttpResponse
+	 * @throws Exception
 	 */
 	public function run($request): HttpResponse {
 		$xml = new SimpleXMLElement('<application/>');
@@ -92,16 +92,16 @@ class RestApiWadlController extends HttpController {
 			$this->addResource($resourceList, $outsiderKey, $outsiderConfig->path, $outsiderConfig->method, $this->convertKeyToName($outsiderKey));
 		}
 		
-		return new XMLHttpResponse($xml->asXML());
+		return new XmlHttpResponse($xml->asXML());
 	}
 	
-	protected function addTitle(SimpleXMLElement $xml, $title) {
+	protected function addTitle(SimpleXMLElement $xml, string $title): void {
 		$element = $xml->addChild(self::TAG_DOC);
 		$element->addAttribute('xml:lang', 'en', 'xml');
 		$element->addAttribute(self::ATTR_TITLE, $title);
 	}
 	
-	protected function addAllEntityResources(SimpleXMLElement $xml, $entityKey, $entityPath, $class, $children, $itemOnly = false) {
+	protected function addAllEntityResources(SimpleXMLElement $xml, string $entityKey, string $entityPath, string $class, array $children, bool $itemOnly = false): void {
 		// Declare resource, needs key & path
 		// Declare params, needs path (parsed)
 		// Declare methods, needs key
@@ -182,16 +182,16 @@ class RestApiWadlController extends HttpController {
 		return $resource;
 	}
 	
-	protected function addJsonRepresentation(SimpleXMLElement $xml) {
+	protected function addJsonRepresentation(SimpleXMLElement $xml): void {
 		$element = $xml->addChild(self::TAG_REPRESENTATION);
 		$element->addAttribute(self::ATTR_MEDIA_TYPE, self::MIMETYPE_JSON);
 	}
 	
-	protected function concatSlug($before, $after): string {
+	protected function concatSlug(string $before, string $after): string {
 		return $before . '-' . $after;
 	}
 	
-	protected function addResource(SimpleXMLElement $xml, $key, $path, $methods, $name): ?SimpleXMLElement {
+	protected function addResource(SimpleXMLElement $xml, string $key, string $path, array $methods, string $name): ?SimpleXMLElement {
 		$resource = $xml->addChild(self::TAG_RESOURCE);
 		$resource->addAttribute(self::ATTR_ID, $key);
 		$resource->addAttribute(self::ATTR_PATH, $path);
@@ -204,7 +204,7 @@ class RestApiWadlController extends HttpController {
 			$method->addAttribute(self::ATTR_ID, $key . '-' . $methodKey);
 			$method->addAttribute(self::ATTR_NAME, $methodKey);
 			$this->addTitle($method, $methodName);
-			if( in_array($method, [HttpRoute::METHOD_POST, HttpRoute::METHOD_PUT], true) ) {
+			if( in_array($methodKey, [HttpRoute::METHOD_POST, HttpRoute::METHOD_PUT], true) ) {
 				// Only POST & PUT allow input
 				$this->addJsonRepresentation($method->addChild(self::TAG_REQUEST));
 			}
@@ -213,14 +213,18 @@ class RestApiWadlController extends HttpController {
 		return $resource;
 	}
 	
-	protected function convertKeyToName($key): string {
+	protected function convertKeyToName(string $key): string {
 		return ucwords(str_replace(['api_', '_'], ['', ' '], $key));
 	}
 	
-	protected function addResponse(SimpleXMLElement $xml, $status) {
+	protected function addResponse(SimpleXMLElement $xml, string $status): void {
 		$element = $xml->addChild(self::TAG_RESPONSE);
 		$element->addAttribute(self::ATTR_STATUS, $status);
 		$this->addJsonRepresentation($element);
+	}
+	
+	public function getApi(): object {
+		return $this->api;
 	}
 	
 }

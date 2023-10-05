@@ -10,8 +10,6 @@ use Orpheus\InputController\HttpController\JSONHttpResponse;
 
 /**
  * Class RestUpdateController
- *
- * @package Orpheus\Rest\Controller\Api
  */
 class RestUpdateController extends EntityRestController {
 	
@@ -19,7 +17,6 @@ class RestUpdateController extends EntityRestController {
 	 * Run this controller
 	 *
 	 * @param HttpRequest $request
-	 * @return JSONHttpResponse
 	 */
 	public function run($request): JSONHttpResponse {
 		$output = $request->getParameter('output', 'all');

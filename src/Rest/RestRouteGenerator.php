@@ -7,8 +7,6 @@ namespace Orpheus\Rest;
 
 /**
  * Class RestRouteGenerator
- *
- * @package Orpheus\Rest
  */
 class RestRouteGenerator {
 	
@@ -25,18 +23,12 @@ class RestRouteGenerator {
 	
 	/**
 	 * RestRouteGenerator constructor.
-	 *
-	 * @param string $method
-	 * @param string $controller
 	 */
-	public function __construct($method, $controller) {
+	public function __construct(string $method, string $controller) {
 		$this->method = $method;
 		$this->controller = $controller;
 	}
 	
-	/**
-	 * @return array
-	 */
 	public function generate(): array {
 		return [
 			'method'     => $this->method,
@@ -45,16 +37,10 @@ class RestRouteGenerator {
 		];
 	}
 	
-	/**
-	 * @return string
-	 */
 	public function getMethod(): string {
 		return $this->method;
 	}
 	
-	/**
-	 * @return string
-	 */
 	public function getController(): string {
 		return $this->controller;
 	}

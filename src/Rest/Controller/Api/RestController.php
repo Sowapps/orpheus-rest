@@ -16,25 +16,20 @@ use Throwable;
 
 /**
  * Class RestController
- *
- * @package Orpheus\Rest\Controller\Api
  */
 abstract class RestController extends HttpController {
 	
 	const HEADER_AUTHORIZATION = 'Authorization';
 	const HEADER_ALT_AUTHORIZATION = 'X-Auth';
 	
-	/** @var int|null */
 	protected static ?int $authenticatedUserId = null;
 	
-	/** @var AbstractUser|UserApiConnectible|null */
 	protected ?AbstractUser $user = null;
 	
 	/**
 	 * @param HttpRequest $request
-	 * @return null
 	 */
-	public function preRun($request) {
+	public function preRun($request): null {
 		$_SESSION['USER_ID'] = null;
 		
 		// Authenticated user
@@ -63,8 +58,6 @@ abstract class RestController extends HttpController {
 	/**
 	 * Get current user access level
 	 * If anonymous, the access is -1
-	 *
-	 * @return int
 	 */
 	public function getUserAccess(): int {
 		return $this->user ? intval($this->user->accesslevel) : -1;
@@ -82,9 +75,6 @@ abstract class RestController extends HttpController {
 		return JSONHttpResponse::generateFromUserException($exception, $values);
 	}
 	
-	/**
-	 * @return int
-	 */
 	public static function getAuthenticatedUserId(): ?int {
 		return self::$authenticatedUserId;
 	}

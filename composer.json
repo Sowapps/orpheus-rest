@@ -1,6 +1,8 @@
 {
 	"name": "orpheus/orpheus-rest",
 	"description": "Orpheus Rest",
+  "type": "library",
+  "license": "MIT",
 	"keywords": [
 		"orpheus",
 		"rest",
@@ -13,18 +15,19 @@
 	},
 	"require": {
 		"php": ">=7.4",
-		"orpheus/orpheus-core": "4.*",
-		"orpheus/orpheus-entitydescriptor": "4.*",
-		"orpheus/orpheus-inputcontroller": "4.*",
-		"orpheus/orpheus-yaml": "4.*"
+      "orpheus/orpheus-core": "^4.0.0",
+      "orpheus/orpheus-entitydescriptor": "^4.0.0",
+      "orpheus/orpheus-inputcontroller": "^4.0.0",
+      "orpheus/orpheus-yaml": "^4.0.0"
 	},
-	"type": "library",
-	"license": "MIT",
+  "suggest": {
+    "ext-simplexml": "To support WADL rendering"
+  },
 	"authors": [
 		{
 			"name": "Florent HAZARD",
 			"email": "contact@sowapps.com",
-			"homepage": "http://sowapps.com",
+          "homepage": "https://sowapps.com",
 			"role": "Developer"
 		}
 	]

@@ -10,8 +10,6 @@ use Orpheus\InputController\HttpController\HttpResponse;
 
 /**
  * Class RestDeleteController
- *
- * @package Orpheus\Rest\Controller\Api
  */
 class RestDeleteController extends EntityRestController {
 	
@@ -19,7 +17,6 @@ class RestDeleteController extends EntityRestController {
 	 * Run this controller
 	 *
 	 * @param HttpRequest $request
-	 * @return HttpResponse
 	 */
 	public function run($request): HttpResponse {
 		

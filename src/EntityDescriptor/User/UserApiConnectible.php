@@ -9,8 +9,8 @@ interface UserApiConnectible {
 	
 	function getAccessToken(): string;
 	
-	static function getByAccessToken(string $token): AbstractUser;
+	static function getByAccessToken(string $token): ?AbstractUser;
 	
-	static function getByEmail(string $email): AbstractUser;
+	static function getByEmail(string $email): ?AbstractUser;
 	
 }

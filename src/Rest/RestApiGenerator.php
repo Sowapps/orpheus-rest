@@ -11,8 +11,6 @@ use Orpheus\InputController\HttpController\HttpRoute;
 
 /**
  * Class RestApiGenerator
- *
- * @package Orpheus\Rest
  */
 class RestApiGenerator {
 	
@@ -26,14 +24,8 @@ class RestApiGenerator {
 	 */
 	private array $itemActions;
 	
-	/**
-	 * @var string
-	 */
 	private string $routePrefix = 'api_';
 	
-	/**
-	 * @var string
-	 */
 	private string $entityPath;
 	
 	/**
@@ -55,8 +47,6 @@ class RestApiGenerator {
 	}
 	
 	/**
-	 * @param string|null $endpoint
-	 * @return array
 	 * @throws Exception
 	 */
 	public function getRoutes(?string $endpoint = null): array {
@@ -86,7 +76,6 @@ class RestApiGenerator {
 	}
 	
 	/**
-	 * @return object
 	 * @throws Exception
 	 */
 	public function getApiConfig(): object {
@@ -102,7 +91,7 @@ class RestApiGenerator {
 					// Use implicit key as path
 					$entityConfig->path = $entityKey;
 				}
-				if( !$entityConfig->class || !class_exists($entityConfig->class, true) ) {
+				if( !$entityConfig->class || !class_exists($entityConfig->class) ) {
 					throw new Exception('Invalid class provided for entity ' . $entityKey);
 				}
 				if( !isset($entityConfig->owner_field) ) {
@@ -148,7 +137,7 @@ class RestApiGenerator {
 							$filterConfig->child_field = $filterKey;
 						}
 						if( isset($filterConfig->via) ) {
-							if( !$filterConfig->via->class || !class_exists($filterConfig->via->class, true) ) {
+							if( !$filterConfig->via->class || !class_exists($filterConfig->via->class) ) {
 								throw new Exception('Invalid class provided for filter ' . $filterKey . ' in entity ' . $entityKey);
 							}
 							if( !$filterConfig->via->child_field ) {
@@ -205,18 +194,13 @@ class RestApiGenerator {
 	}
 	
 	/**
-	 * @return array
 	 * @throws Exception
 	 */
 	public function getRawConfig(): array {
-		return Yaml::buildFrom(null, 'rest-api', true)->asArray();
+		return Yaml::buildFrom(null, 'rest-api')->asArray();
 	}
 	
-	/**
-	 * @param callable $callable
-	 * @return bool
-	 */
-	protected function isValidCallable($callable): bool {
+	protected function isValidCallable(callable $callable): bool {
 		if( !$callable ) {
 			return false;
 		}
@@ -225,15 +209,7 @@ class RestApiGenerator {
 		return is_callable($callable);
 	}
 	
-	/**
-	 * @param array $routes
-	 * @param object $api
-	 * @param string $routePrefix
-	 * @param string $entityPath
-	 * @param object $entityConfig
-	 * @param string|null $alias
-	 */
-	public function generateEntityRoutes(array &$routes, $api, $routePrefix, $entityPath, $entityConfig, $alias = null) {
+	public function generateEntityRoutes(array &$routes, object $api, string $routePrefix, string $entityPath, object $entityConfig, ?string $alias = null): void {
 		$itemOnly = !!$alias;
 		
 		if( !$itemOnly ) {
@@ -262,15 +238,7 @@ class RestApiGenerator {
 		}
 	}
 	
-	/**
-	 * @param string $actionKey
-	 * @param RestRouteGenerator $action
-	 * @param string $path
-	 * @param object $entityConfig
-	 * @param string $alias
-	 * @return array
-	 */
-	public function generateRoute($actionKey, $action, $path, $entityConfig, $alias, $parent): array {
+	public function generateRoute(string $actionKey, RestRouteGenerator $action, string $path, object $entityConfig, string $alias, ?array $parent): array {
 		$route = $action->generate();
 		$route['path'] = $path;
 		$route['entity'] = $entityConfig->class;
@@ -291,9 +259,6 @@ class RestApiGenerator {
 		return $route;
 	}
 	
-	/**
-	 * @return string
-	 */
 	public function getEntityPath(): string {
 		return $this->entityPath;
 	}
@@ -305,16 +270,10 @@ class RestApiGenerator {
 		return $this->entityActions;
 	}
 	
-	/**
-	 * @return string
-	 */
 	public function getFullItemPath(): string {
 		return $this->entityPath . $this->getItemPath();
 	}
 	
-	/**
-	 * @return string
-	 */
 	public function getItemPath(): string {
 		return '/{id:itemId}';
 	}

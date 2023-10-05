@@ -13,14 +13,11 @@ use Orpheus\Rest\Controller\Api\RestController;
 
 /**
  * Class TemplateController
- *
- * @package Orpheus\Rest\Controller
  */
 class TemplateController extends RestController {
 	
 	/**
 	 * @param HttpRequest $request
-	 * @return HttpResponse
 	 * @throws ForbiddenException
 	 */
 	public function run($request): HttpResponse {
@@ -38,7 +35,7 @@ class TemplateController extends RestController {
 		return $this->renderHTML('front-template/' . $templateKey);
 	}
 	
-	public function getTemplateConfig() {
+	public function getTemplateConfig(): array {
 		$config = Yaml::build('front-templates', true);
 		
 		return $config->templates;

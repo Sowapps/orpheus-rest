@@ -10,21 +10,15 @@ use Orpheus\EntityDescriptor\User\UserApiConnectible;
 use Orpheus\Exception\ForbiddenException;
 use Orpheus\InputController\HttpController\HttpRequest;
 use Orpheus\InputController\HttpController\HttpResponse;
-use Orpheus\InputController\HttpController\JSONHttpResponse;
-use Orpheus\InputController\OutputResponse;
 use Orpheus\Rest\Controller\Api\RestController;
 
 /**
  * Class UserLoginRestController
- *
- * @package Orpheus\Rest\Controller
  */
 class UserLoginRestController extends RestController {
 	
 	/**
 	 * @param HttpRequest $request
-	 * @return JSONHttpResponse|OutputResponse|null
-	 * @throws ForbiddenException
 	 */
 	public function run($request): HttpResponse {
 		$userEmail = $request->getInputValue('email');
