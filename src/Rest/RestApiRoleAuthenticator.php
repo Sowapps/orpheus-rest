@@ -18,7 +18,7 @@ class RestApiRoleAuthenticator {
 	protected ?PermanentEntity $item = null;
 	
 	public function __construct() {
-		$this->user = AbstractUser::getLoggedUser();
+		$this->user = AbstractUser::getActiveUser();
 	}
 	
 	public function allowRole(string $role, object $options): bool {

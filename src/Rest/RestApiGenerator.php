@@ -8,6 +8,11 @@ namespace Orpheus\Rest;
 use Exception;
 use Orpheus\Config\Yaml\Yaml;
 use Orpheus\InputController\HttpController\HttpRoute;
+use Orpheus\Rest\Controller\Api\RestCreateController;
+use Orpheus\Rest\Controller\Api\RestDeleteController;
+use Orpheus\Rest\Controller\Api\RestListController;
+use Orpheus\Rest\Controller\Api\RestReadController;
+use Orpheus\Rest\Controller\Api\RestUpdateController;
 
 /**
  * Class RestApiGenerator
@@ -34,12 +39,12 @@ class RestApiGenerator {
 	public function __construct(string $entityPath = '/%s') {
 		$this->entityPath = $entityPath;
 		$this->entityActions = [];
-		$this->entityActions['list'] = new RestRouteGenerator(HttpRoute::METHOD_GET, 'Orpheus\Rest\Controller\Api\RestListController');
-		$this->entityActions['create'] = new RestRouteGenerator(HttpRoute::METHOD_POST, 'Orpheus\Rest\Controller\Api\RestCreateController');
+		$this->entityActions['list'] = new RestRouteGenerator(HttpRoute::METHOD_GET, RestListController::class);
+		$this->entityActions['create'] = new RestRouteGenerator(HttpRoute::METHOD_POST, RestCreateController::class);
 		$this->itemActions = [];
-		$this->itemActions['read'] = new RestRouteGenerator(HttpRoute::METHOD_GET, 'Orpheus\Rest\Controller\Api\RestReadController');
-		$this->itemActions['update'] = new RestRouteGenerator(HttpRoute::METHOD_PUT, 'Orpheus\Rest\Controller\Api\RestUpdateController');
-		$this->itemActions['delete'] = new RestRouteGenerator(HttpRoute::METHOD_DELETE, 'Orpheus\Rest\Controller\Api\RestDeleteController');
+		$this->itemActions['read'] = new RestRouteGenerator(HttpRoute::METHOD_GET, RestReadController::class);
+		$this->itemActions['update'] = new RestRouteGenerator(HttpRoute::METHOD_PUT, RestUpdateController::class);
+		$this->itemActions['delete'] = new RestRouteGenerator(HttpRoute::METHOD_DELETE, RestDeleteController::class);
 	}
 	
 	public function getAllActions(): array {
@@ -65,8 +70,8 @@ class RestApiGenerator {
 		
 		// Loop on entities to extract base data
 		foreach( $api->aliases as $aliasKey => $aliasConfig ) {
-			$this->generateEntityRoutes($routes, $api, $this->routePrefix . $aliasKey . '_', $aliasConfig->path,
-				$api->entities[$aliasConfig->entity], (object) [
+			$this->generateEntityRoutes($routes, $api, $this->routePrefix . $aliasKey . '_', $aliasConfig->path, $api->entities[$aliasConfig->entity],
+				(object)[
 					'key'    => $aliasKey,
 					'source' => $aliasConfig->source,
 				]);
@@ -97,17 +102,26 @@ class RestApiGenerator {
 				if( !isset($entityConfig->owner_field) ) {
 					$entityConfig->owner_field = 'create_user_id';
 				}
-				// Format rights fields
+				// Format permissions fields
 				foreach( $this->getAllActions() as $key ) {
 					if( !isset($entityConfig->$key) ) {
 						// Not-provided config is initialized to empty
-						$entityConfig->$key = ['roles' => []];
+						$entityConfig->$key = ['permissions' => []];
 					} elseif( is_string($entityConfig->$key) ) {
 						// lone string is a role
-						$entityConfig->$key = ['roles' => [$entityConfig->$key]];
-					} elseif( is_array($entityConfig->$key) && isset($entityConfig->$key[0]) ) {
+						$entityConfig->$key = ['permissions' => [$entityConfig->$key => null]];
+					} else if( is_array($entityConfig->$key) ) {
 						// List of roles
-						$entityConfig->$key = ['roles' => $entityConfig->$key];
+						// Reformat permissions to allow ["administrator"] and ["administrator"=>"public"] (read usage)
+						$permissions = [];
+						foreach( $entityConfig->$key as $permissionKey => $permissionDetails ) {
+							if( is_numeric($permissionKey) ) {
+								$permissions[$permissionDetails] = null;
+							} else {
+								$permissions[$permissionKey] = $permissionDetails;
+							}
+						}
+						$entityConfig->$key = ['permissions' => $permissions];
 					} // Else well-formatted array
 					$entityConfig->$key = (object) $entityConfig->$key;
 				}
@@ -166,7 +180,7 @@ class RestApiGenerator {
 				if( !$aliasConfig->entity || !$config->entities[$aliasConfig->entity] ) {
 					throw new Exception('Invalid entity provided for alias ' . $aliasKey);
 				}
-				if( !$this->isValidCallable($aliasConfig->source) ) {
+				if( !$this->isValidSource($aliasConfig->source) ) {
 					throw new Exception('Invalid source provided for alias ' . $aliasKey);
 				}
 			}
@@ -200,7 +214,15 @@ class RestApiGenerator {
 		return Yaml::buildFrom(null, 'rest-api')->asArray();
 	}
 	
-	protected function isValidCallable(callable $callable): bool {
+	protected function isValidSource(string $source): bool {
+		if( $source === '{AuthenticatedUser}' ) {
+			return true;
+		}
+		
+		return $this->isValidCallable($source);
+	}
+	
+	protected function isValidCallable(string $callable): bool {
 		if( !$callable ) {
 			return false;
 		}
@@ -209,7 +231,7 @@ class RestApiGenerator {
 		return is_callable($callable);
 	}
 	
-	public function generateEntityRoutes(array &$routes, object $api, string $routePrefix, string $entityPath, object $entityConfig, ?string $alias = null): void {
+	public function generateEntityRoutes(array &$routes, object $api, string $routePrefix, string $entityPath, object $entityConfig, ?object $alias = null): void {
 		$itemOnly = !!$alias;
 		
 		if( !$itemOnly ) {
@@ -238,13 +260,13 @@ class RestApiGenerator {
 		}
 	}
 	
-	public function generateRoute(string $actionKey, RestRouteGenerator $action, string $path, object $entityConfig, string $alias, ?array $parent): array {
+	public function generateRoute(string $actionKey, RestRouteGenerator $action, string $path, object $entityConfig, ?object $alias, ?array $parent): array {
 		$route = $action->generate();
 		$route['path'] = $path;
 		$route['entity'] = $entityConfig->class;
 		$route['parent'] = $parent;
 		// See EntityRestController::checkRights()
-		$route['rights'] = $entityConfig->$actionKey->roles;
+		$route['permissions'] = $entityConfig->$actionKey->permissions;
 		$route['owner_field'] = $entityConfig->owner_field;
 		if( isset($entityConfig->$actionKey->controller) ) {
 			$route['controller'] = $entityConfig->$actionKey->controller;

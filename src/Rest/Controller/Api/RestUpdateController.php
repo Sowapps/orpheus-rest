@@ -6,7 +6,7 @@
 namespace Orpheus\Rest\Controller\Api;
 
 use Orpheus\InputController\HttpController\HttpRequest;
-use Orpheus\InputController\HttpController\JSONHttpResponse;
+use Orpheus\InputController\HttpController\JsonHttpResponse;
 
 /**
  * Class RestUpdateController
@@ -18,15 +18,15 @@ class RestUpdateController extends EntityRestController {
 	 *
 	 * @param HttpRequest $request
 	 */
-	public function run($request): JSONHttpResponse {
-		$output = $request->getParameter('output', 'all');
+	public function run($request): JsonHttpResponse {
+		$output = $request->getParameter('output', 'public');
 		$input = $request->getInput();
 		
 		$this->entityService->updateItem($this->item, $input);
 		
 		$data = $this->entityService->extractPublicArray($this->item, $output);
 		
-		return new JSONHttpResponse($data);
+		return new JsonHttpResponse($data);
 	}
 	
 }

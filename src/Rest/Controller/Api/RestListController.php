@@ -7,7 +7,7 @@ namespace Orpheus\Rest\Controller\Api;
 
 use Orpheus\EntityDescriptor\Entity\PermanentEntity;
 use Orpheus\InputController\HttpController\HttpRequest;
-use Orpheus\InputController\HttpController\JSONHttpResponse;
+use Orpheus\InputController\HttpController\JsonHttpResponse;
 
 /**
  * Class RestListController
@@ -19,7 +19,7 @@ class RestListController extends EntityRestController {
 	 *
 	 * @param HttpRequest $request
 	 */
-	public function run($request): JSONHttpResponse {
+	public function run($request): JsonHttpResponse {
 		$output = $request->getParameter('output', 'all');
 		
 		$query = $this->entityService
@@ -32,7 +32,7 @@ class RestListController extends EntityRestController {
 			$data[$item->id()] = $this->entityService->extractPublicArray($item, $output);
 		}
 		
-		return new JSONHttpResponse($data);
+		return new JsonHttpResponse($data);
 	}
 	
 }

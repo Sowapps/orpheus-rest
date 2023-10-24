@@ -5,7 +5,6 @@
 
 namespace Orpheus\Rest\Controller\Api;
 
-use Orpheus\Config\Config;
 use Orpheus\EntityDescriptor\Entity\PermanentEntity;
 use Orpheus\EntityDescriptor\Service\EntityService;
 use Orpheus\EntityDescriptor\User\AbstractUser;
@@ -29,6 +28,8 @@ abstract class EntityRestController extends RestController {
 	protected ?AbstractUser $filterUser = null;
 	
 	protected string $pathItemId = 'itemId';
+	protected ?string $activePermissionRole = null;
+	protected array|string|null $activePermissionOptions = null;
 	
 	/**
 	 * @param HttpRequest $request
@@ -40,14 +41,6 @@ abstract class EntityRestController extends RestController {
 		
 		$route = $request->getRoute();
 		$routeOptions = (object) $route->getOptions();
-		
-		$allowed = $this->checkRights($route, $routeOptions, $request);
-		if( !$allowed ) {
-			// Not allowed and no advancedRoles
-			throw new ForbiddenException('Forbidden access to route');
-		}
-		$advancedRoles = $allowed;
-		unset($allowed);
 		
 		if( !empty($routeOptions->parent) ) {
 			$parentConfig = (object) $routeOptions->parent;
@@ -69,55 +62,74 @@ abstract class EntityRestController extends RestController {
 		
 		$itemId = $request->getPathValue($this->pathItemId);
 		if( !$itemId && !empty($routeOptions->alias) ) {
-			$itemId = call_user_func(strtok($routeOptions->alias->source, '('));
+			$aliasCallback = strtok($routeOptions->alias->source, '(');
+			if( $aliasCallback === '{AuthenticatedUser}' ) {
+				$this->item = $this->user;
+			} else {
+				$itemId = call_user_func($aliasCallback);
+			}
 		}
 		
 		if( $itemId ) {
 			$this->item = $this->entityService->loadItem($itemId);
 		}
 		
-		foreach( $advancedRoles as $role ) {
-			$this->checkAdvancedRole($routeOptions, $request, $role);
+		[$allowed, $permissionRole, $permissionOptions] = $this->checkRights($route, $routeOptions);
+		
+		if( !$allowed ) {
+			$requireAdvancedRoles = $permissionRole;// ["role"=>"roleOptions"]
+			foreach( $requireAdvancedRoles as $advPermissionRole => $advPermissionOptions ) {
+				$valid = $this->authenticateAdvancedRole($routeOptions, $request, $advPermissionRole);
+				if( $valid ) {
+					$permissionRole = $advPermissionRole;
+					$permissionOptions = $advPermissionOptions;
+					$allowed = true;
+					break;
+				}
+			}
 		}
+		
+		if( !$allowed ) {
+			// Not allowed and no advancedRoles
+			throw new ForbiddenException('Forbidden access to route');
+		}
+		
+		$this->activePermissionRole = $permissionRole;
+		$this->activePermissionOptions = $permissionOptions;
 		
 		return null;
 	}
 	
-	public function checkRights(ControllerRoute $route, object $options, HttpRequest $request): true|array {
+	public function checkRights(ControllerRoute $route, object $options): array {
 		$advancedRoles = [];
-		if( !empty($options->rights) ) {
-			$userRoles = Config::get('user_roles');
-			//			$checkOwner = false;
-			//			$allowed = false;
-			foreach( $options->rights as $right ) {
-				if( isset($userRoles[$right]) ) {
-					// Is right a classic user role ?
-					if( AbstractUser::loggedCanAccessToRoute($route->getName(), $right) ) {
+		if( !empty($options->permissions) ) {
+			$userRoles = AbstractUser::getUserRoles();
+			foreach( $options->permissions as $permissionRole => $permissionOptions ) {
+				if( isset($userRoles[$permissionRole]) ) {
+					// Is a valid classic user role ?
+					if( AbstractUser::loggedCanAccessToRoute($route->getName(), $permissionRole) ) {
 						// At least one valid role allowing access is required
 						// Then custom roles are ignored
-						return true;
-						//						$advancedRoles = [];
-						//						break;
+						return [true, $permissionRole, $permissionOptions];
 					}
 				} else {
 					// Custom role handled after route is loaded
-					$advancedRoles[] = $right;
+					$advancedRoles[$permissionRole] = $permissionOptions;
 				}
 			}
-			//			if( $checkOwner && $this->user ) {
-			//				// Owner allowed to access this route only if results are filtered
-			//				$this->filterUser = $this->user;
-			//				$allowed = true;
-			//			}
-			//			if( !$allowed ) {
-			//				throw new ForbiddenException('Forbidden access to route');
-			//			}
 		}
 		
-		return $advancedRoles;
+		return [false, $advancedRoles, null];
 	}
 	
-	public function checkAdvancedRole(object $options, HttpRequest $request, string $role): void {
+	public function authenticateAdvancedRole(object $options, HttpRequest $request, string $role): bool {
+		if( $role === 'owner' ) {
+			if( $this->item instanceof AbstractUser ) {
+				return $this->item->equals($this->user);
+			}
+			return $this->user && $this->user->equals($this->entityService->getOwner($this->item));
+		}
+		return false;
 	}
 	
 }

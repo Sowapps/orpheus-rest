@@ -15,19 +15,19 @@
 	},
 	"require": {
 		"php": ">=7.4",
-      "orpheus/orpheus-core": "^4.0.0",
-      "orpheus/orpheus-entitydescriptor": "^4.0.0",
-      "orpheus/orpheus-inputcontroller": "^4.0.0",
-      "orpheus/orpheus-yaml": "^4.0.0"
+		"orpheus/orpheus-core": "^4.0.0",
+		"orpheus/orpheus-entitydescriptor": "^4.0.0",
+		"orpheus/orpheus-inputcontroller": "^4.0.0",
+		"orpheus/orpheus-yaml": "^4.0.0"
 	},
   "suggest": {
-    "ext-simplexml": "To support WADL rendering"
+	  "ext-simplexml": "To support WADL rendering"
   },
 	"authors": [
 		{
 			"name": "Florent HAZARD",
 			"email": "contact@sowapps.com",
-          "homepage": "https://sowapps.com",
+			"homepage": "https://sowapps.com",
 			"role": "Developer"
 		}
 	]

@@ -6,12 +6,12 @@
 namespace Orpheus\Rest\Controller\Api;
 
 use Orpheus\EntityDescriptor\User\AbstractUser;
-use Orpheus\EntityDescriptor\User\UserApiConnectible;
 use Orpheus\Exception\UserException;
 use Orpheus\InputController\HttpController\HttpController;
 use Orpheus\InputController\HttpController\HttpRequest;
 use Orpheus\InputController\HttpController\HttpResponse;
-use Orpheus\InputController\HttpController\JSONHttpResponse;
+use Orpheus\InputController\HttpController\JsonHttpResponse;
+use Orpheus\Service\SecurityService;
 use Throwable;
 
 /**
@@ -30,27 +30,7 @@ abstract class RestController extends HttpController {
 	 * @param HttpRequest $request
 	 */
 	public function preRun($request): null {
-		$_SESSION['USER_ID'] = null;
-		
-		// Authenticated user
-		$headers = $request->getHeaders();
-		$token = null;
-		if( !empty($headers[self::HEADER_ALT_AUTHORIZATION]) || !empty($headers[self::HEADER_AUTHORIZATION]) ) {
-			$authHeader = !empty($headers[self::HEADER_ALT_AUTHORIZATION]) ? $headers[self::HEADER_ALT_AUTHORIZATION] : $headers[self::HEADER_AUTHORIZATION];
-			[, $token] = explodeList(' ', $authHeader, 2);
-		} elseif( $request->hasParameter('aat') ) {
-			$token = $request->getParameter('aat');
-		}
-		if( $token ) {
-			/** @var UserApiConnectible $userClass */
-			$userClass = AbstractUser::getUserClass();
-			$this->user = $userClass::getByAccessToken($token);
-			// Compatibility with all user system
-			if( $this->user ) {
-				$this->user->login(true);
-				static::$authenticatedUserId = $this->user->id();
-			}
-		}
+		$this->user = SecurityService::get()->getActiveUser();
 		
 		return null;
 	}
@@ -63,16 +43,16 @@ abstract class RestController extends HttpController {
 		return $this->user ? intval($this->user->accesslevel) : -1;
 	}
 	
-	public function renderOutput($data): JSONHttpResponse {
-		return new JSONHttpResponse($data);
+	public function renderOutput($data): JsonHttpResponse {
+		return new JsonHttpResponse($data);
 	}
 	
 	public function processException(Throwable $exception, $values = []): HttpResponse {
-		return JSONHttpResponse::generateFromException($exception);
+		return JsonHttpResponse::generateFromException($exception);
 	}
 	
 	public function processUserException(UserException $exception, $values = []): HttpResponse {
-		return JSONHttpResponse::generateFromUserException($exception, $values);
+		return JsonHttpResponse::generateFromUserException($exception, $values);
 	}
 	
 	public static function getAuthenticatedUserId(): ?int {
